@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARLEND | Магазин цифровых товаров</title>
+    <!-- Подключение официального скрипта Telegram WebApp -->
+    <script src="telegram.org"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #00ff66;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --danger-color: #ff3333;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+        }
+        .contacts {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .contacts a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .section-title {
+            font-size: 18px;
+            margin: 20px 0 10px 0;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .card-price {
+            font-size: 18px;
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .btn-buy {
+            background-color: var(--accent-color);
+            color: #000000;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .btn-buy:hover {
+            background-color: #00cc52;
+        }
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            border: 1px solid #444;
+            padding: 25px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .close-modal:hover {
+            color: #fff;
+        }
+        .modal h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #151515;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+        .card-number-box {
+            background-color: #151515;
+            border: 1px dashed var(--accent-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 16px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            user-select: all;
+        }
+        .card-number-box:active {
+            background-color: #222;
+        }
+        .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        /* Отзывы */
+        .reviews-section {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #2a2a2a;
+        }
+        .review-item {
+            border-bottom: 1px solid #333;
+            padding: 12px 0;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .review-user {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .review-text {
+            font-size: 14px;
+            color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DARLEND</h1>
+        <div class="contacts">Тех. поддержка: <a href="t.me" target="_blank">@BoostHubX1</a></div>
+    </header>
+
+    <div class="section-title">PUBG Mobile</div>
+    <div class="grid" id="pubg-products"></div>
+
+    <div class="section-title">Brawl Stars</div>
+    <div class="grid" id="bs-products"></div>
+
+    <div class="reviews-section">
+        <h3 style="margin-top:0; border-bottom: 1px solid #333; padding-bottom: 10px;">Отзывы покупателей</h3>
+        <div id="reviews-list">
+            <div class="review-item">
+                <div class="review-user">@ canek_top1</div>
+                <div class="review-text">Купил 325 UC, пришли ровно через 10 минут! Лучший магазин darlend 🔥🔥🔥</div>
+            </div>
+            <div class="review-item">
+                <div class="review-user">@ legend_bs</div>
+                <div class="review-text">Бравл пасс плюс активировали быстро, код скинул и готово. Рекомендую!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно оформления заявки -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle">Покупка товара</h3>
+            
+            <!-- Шаг 1: Ввод данных игрока -->
+            <div id="step1">
+                <div id="dynamicInputs"></div>
+                <button class="btn-buy" onclick="goToStep2()">Далее</button>
+            </div>
+
+            <!-- Шаг 2: Оплата на карту -->
+            <div id="step2" style="display: none;">
+                <p style="font-size: 14px; margin-bottom: 5px;">Переведите <span id="modalPrice" style="color:var(--accent-color); font-weight:bold;"></span> ₽ на карту Ozon Банк:</p>
+                <div class="card-number-box" onclick="copyCardText()">2204321148318157</div>
+                <div class="hint">Нажмите на номер выше, чтобы скопировать карту. После перевода нажмите кнопку ниже.</div>
+                <button class="btn-buy" onclick="submitOrder()">Я оплатил(-а)</button>
+            </div>
+
+            <!-- Шаг 3: Финальный экран -->
+            <div id="step3" style="display: none;">
+                <p style="color: var(--accent-color); font-weight: bold; font-size: 18px; margin-bottom: 5px;">Заявка отправлена!</p>
+                <p id="timerMessage" style="font-size: 14px; color: #eee; line-height: 1.4;"></p>
+                <button class="btn-buy" style="background:#555; color:#fff;" onclick="closeModal()">Закрыть окно</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+    }
+
+    // База товаров по вашему прайсу
+    const pubgProducts = [
+        { name: '60 UC', price: 79 },
+        { name: '325 UC', price: 369 },
+        { name: '660 UC', price: 789 },
+        { name: '1800 UC', price: 1949 },
+        { name: '3850 UC', price: 3879 },
+        { name: '8100 UC', price: 7749 }
+    ];
+
+    const bsProducts = [
+        { name: 'Brawl Pass', price: 819 },
+        { name: 'Brawl Pass Plus', price: 1169 },
+        { name: '30 гемов', price: 194 },
+        { name: '360 гемов', price: 1789 }
+    ];
+
+    let selectedProduct = null;
+    let selectedCategory = '';
+
+    // Генерация кнопок и карточек товаров на экране
+    function initShop() {
+        const pubgContainer = document.getElementById('pubg-products');
+        pubgContainer.innerHTML = pubgProducts.map(p => `
+            <div class="card">
+                <div class="card-title">${p.name}</div>
+                <div class="card-price">${p.price} ₽</div>
+                <button class="btn-buy" onclick="openOrderModal('pubg', '${p.name}', ${p.price})">Купить</button>
+            </div>
+        `).join('');
+
+        const bsContainer = document.getElementById('bs-products');
+        bsContainer.innerHTML = bsProducts.map(p => `
+            <div class="card">
+                <div class="card-title">${p.name}</div>
+                <div class="card-price">${p.price} ₽</div>
+                <button class="btn-buy" onclick="openOrderModal('bs', '${p.name}', ${p.price})">Купить</button>
+            </div>
+        `).join('');
+    }
+
+    // Логика открытия модального окна при клике "Купить"
+    function openOrderModal(category, name, price) {
+        selectedCategory = category;
+        selectedProduct = { name, price };
+
+        document.getElementById('modalTitle').innerText = name + ` (${price} ₽)`;
+        document.getElementById('modalPrice').innerText = price;
+
+        const inputsDiv = document.getElementById('dynamicInputs');
+        
+        // Переключение логики ввода (UID для пабга, почта и код для бравла)
+        if (category === 'pubg') {
+            inputsDiv.innerHTML = `
+                <p style="font-size:14px; margin-bottom:5px; color:var(--text-muted);">Для отправки UC укажите ваш игровой UID:</p>
+                <input type="text" id="playerUid" placeholder="Введите UID игрока (например, 512345678)" required>
+            `;
+        } else {
+            inputsDiv.innerHTML = `
+                <p style="font-size:14px; margin-bottom:5px; color:var(--text-muted);">Укажите почту от Supercell ID:</p>
+                <input type="email" id="playerEmail" placeholder="example@gmail.com" required>
+                <p style="font-size:14px; margin-bottom:5px; color:var(--text-muted);">Введите полученный код из письма:</p>
+                <input type="text" id="playerCode" placeholder="Код подтверждения" required>
+            `;
+        }
+
+        document.getElementById('step1').style.display = 'block';
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('orderModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('orderModal').style.display = 'none';
+    }
+
+    // Проверка заполнения полей и переход к реквизитам карты
+    function goToStep2() {
+        if (selectedCategory === 'pubg') {
+            const uid = document.getElementById('playerUid').value.trim();
+            if (!uid) { alert('Пожалуйста, введите ваш UID!'); return; }
+            selectedProduct.uid = uid;
+        } else {
+            const email = document.getElementById('playerEmail').value.trim();
+            const code = document.getElementById('playerCode').value.trim();
+            if (!email || !code) { alert('Заполните Email и Код доступа!'); return; }
+            selectedProduct.email = email;
+            selectedProduct.code = code;
+        }
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+    }
+
+    // Функция быстрого копирования номера карты
+    function copyCardText() {
+        navigator.clipboard.writeText('2204321148318157')
+            .then(() => alert('Номер карты скопирован в буфер обмена!'))
+            .catch(() => alert('Не удалось скопировать автоматически. Выделите текст вручную.'));
+    }
+
+    // Кнопка "Я оплатил(-а)" — отправка структуры данных в бот
+    function submitOrder() {
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'block';
+
+        const timerMsg = document.getElementById('timerMessage');
+        if (selectedCategory === 'pubg') {
+            timerMsg.innerHTML = `Администратор проверяет оплату. Пожалуйста, <b>не заходите в игру в течение 10 минут</b> после подтверждения выполнения!`;
+        } else {
+            timerMsg.innerHTML = `Администратор проверяет оплату и код. Пожалуйста, <b>не заходите на аккаунт Brawl Stars в течение 30 минут</b>!`;
+        }
+
+        const orderPayload = {
+            action: "new_order",
+            category: selectedCategory,
+            product_name: selectedProduct.name,
+            price: selectedProduct.price,
+            uid: selectedProduct.uid || null,
+            email: selectedProduct.email || null,
+            code: selectedProduct.code || null,
+            user_tg: tg?.initDataUnsafe?.user?.username || "Не определен"
+        };
+
+        // Если открыто внутри Telegram — шлем данные боту, иначе симулируем в консоль браузера
+        if (tg && tg.sendData) {
+            tg.sendData(JSON.stringify(orderPayload));
+        } else {
+            console.log("Данные отправлены администратору (Симуляция без TG):", orderPayload);
+        }
+    }
+
+    // Запуск магазина
+    initShop();
+</script>
+</body>
+</html>
